@@ -1,39 +1,104 @@
 const DbUser = require('../model/userModel')
 
-//create user
-const createUser = async(req,res)=>{
+const fetchUserById= async(req,res)=>{
     try {
-    const {firstName, lastName , email , password } = req.body
+        const { id } = req.params;
 
-    const user = await DbUser.findOne({
-        email:email
-    });
-    if(user){
-        res.status(409).json({message:'user already exist'})
-    }
-
-    const newUser = new DbUser({
-
-        firstName:firstName,
-        lastName:lastName,
-        userName:`${firstName}${lastName}`,
-        email:email,
-        password:password,
-        status:1
-    })
-    await newUser.save();
-    res.status(201).json({success:true,
-        data:newUser
-    })
+        const foundUser = await DbUser.findById(id);
+        if(!foundUser){
+            res.status(404).json('user not exist')
+        }
+        res.status(200).json({
+            success:true,
+            data:foundUser
+        })
     } catch (error) {
-        res.status(500).json({success:false,
-            message:error.message 
+        res.status(500).json({
+            success:false,
+            message:error.message
         })
     }
-    
-
 }
 
+const fetchUsers= async(req,res)=>{
+    try {
+       const foundUser = await DbUser.find();
+       if(!foundUser){
+        res.status(404).json('no user found')
+    }
+    res.status(200).json({
+        success:true,
+        data:foundUser
+    })
+    } catch (error) {
+        res.status(500).json({
+            success:false,
+            message:error.message
+        })
+    }
+}
+
+const updateUser = async(req,res)=>{
+    try {
+        const { id } = req.params
+        const { firstName, lastName , email , password , userName } = req.body
+
+        const userExist = await DbUser.find(
+            {
+                email
+                //status:{$in:[1]}
+            });
+        if(!userExist){
+            res.status(409).json('user not exist')
+        }        
+        const updateUser = await DbUser.findByIdAndUpdate(
+            id,
+            {
+                firstName, lastName , email , password ,  userName
+            },
+            {new:true}
+        )
+        res.status(200).json({success:true,
+            data:updateUser
+    })
+    } catch (error) {
+        res.status(500).json({
+            success:false,
+            message:error.message
+        })
+    }
+}
+
+const deleteUser = async(req,res)=>{
+    try{
+        const  { id } = req.params;
+        //console.log(id);
+        
+        const userExist = await DbUser.findOne(
+            { email })
+           // console.log("Email"+userExist);
+        if(!userExist){
+            res.status(409).json('user not exist')
+        } 
+        const deleteUser = await DbUser.updateOne(
+            {email},
+            {
+                $set:{status:-1}
+            }
+        )
+        res.status(200).json({success:true,
+            message:'user deleted successfully',
+            data:deleteUser
+    })
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({message:error.message})
+    }
+}
 module.exports = {
-    createUser
+    fetchUserById,
+    fetchUsers,
+    updateUser,
+    deleteUser
 }
