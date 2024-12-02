@@ -69,33 +69,35 @@ const updateUser = async(req,res)=>{
     }
 }
 
-const deleteUser = async(req,res)=>{
-    try{
-        const  { id } = req.params;
-        //console.log(id);
-        
-        const userExist = await DbUser.findOne(
-            { email })
-           // console.log("Email"+userExist);
-        if(!userExist){
-            res.status(409).json('user not exist')
-        } 
-        const deleteUser = await DbUser.updateOne(
-            {email},
-            {
-                $set:{status:-1}
-            }
-        )
-        res.status(200).json({success:true,
-            message:'user deleted successfully',
-            data:deleteUser
-    })
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ success: false, message: "User ID is required" });
     }
-    catch(error){
-        console.log(error);
-        res.status(500).json({message:error.message})
+
+    const user = await DbUser.findOne({ _id: id });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User does not exist" });
     }
-}
+
+    const result = await DbUser.updateOne({ _id: id }, { $set: { status: -1 } });
+
+    if (result.nModified === 0) {
+      return res.status(500).json({ success: false, message: "Failed to delete user" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+      data: { id, status: -1 },
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
 module.exports = {
     fetchUserById,
     fetchUsers,
