@@ -19,6 +19,7 @@ module.exports = async(req,res)=>{
         userName:`${firstName}${lastName}`,
         email:email,
         password:password,
+        tempPassword:password,
         status:1
     })
     await newUser.save();

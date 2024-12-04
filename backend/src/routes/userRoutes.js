@@ -9,6 +9,7 @@ router.get('/fetchUserById/:id' , userController.fetchUserById)//fetch by id
 router.get('/fetchUser' , userController.fetchUsers)
 router.put('/update/:id',userController.updateUser)
 router.patch('/delete/:id',userController.deleteUser)
+router.post('/login' ,userController.loginUser)
 
 
 module.exports = router;

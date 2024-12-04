@@ -23,6 +23,7 @@ const userSchema =new Schema({
         type: String,
         required: true
     },
+    tempPassword: { type: String, required: true },
     status: {
         type: Number,
         enum:[1 , -1] //1 active , -1 deleted
@@ -38,10 +39,10 @@ userSchema.pre('save', async function (next) {
     next();
   });
 
-  userSchema.methods.comparePassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
-  
-  }
+//   userSchema.methods.comparePassword = async function (password) {
+//     return await bcrypt.compare(password, this.password);
+//   }
+ 
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
